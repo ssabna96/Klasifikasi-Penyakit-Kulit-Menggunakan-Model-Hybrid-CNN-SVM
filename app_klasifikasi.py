@@ -9,7 +9,7 @@ Original file is located at
 
 import streamlit as st
 import numpy as np
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 from PIL import Image
 import joblib
 import requests
@@ -21,9 +21,23 @@ import tempfile
 
 st.set_page_config(page_title="Skin Disease Classifier", layout="wide")
 
-@st.cache_resource
-def load_model_cnn():
-    return joblib.load("cnn_model.tflite")
+def load_cnn_tflite():
+    # Direct Download link dari Google Drive (file .tflite)
+    url = "https://drive.google.com/uc?export=download&id=1RuGjNcW_Yi1MTjmgQymTKxP9594uzm4d"
+
+    # Download file
+    response = requests.get(url)
+
+    # Simpan file sementara dengan format .tflite
+    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".tflite")
+    temp.write(response.content)
+    temp.flush()
+
+    # Load TFLite Interpreter
+    interpreter = tflite.Interpreter(model_path=temp.name)
+    interpreter.allocate_tensors()
+
+    return interpreter
 
 @st.cache_resource
 def load_svm_ovo():
