@@ -22,21 +22,8 @@ import tempfile
 st.set_page_config(page_title="Skin Disease Classifier", layout="wide")
 
 @st.cache_resource
-def load_cnn():
-    # Direct download link dari Google Drive
-    url = "https://drive.google.com/uc?export=download&id=1RuGjNcW_Yi1MTjmgQymTKxP9594uzm4d"
-
-    # Download file
-    response = requests.get(url)
-
-    # Simpan file sementara
-    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".h5")
-    temp.write(response.content)
-    temp.flush()
-
-    # Load model
-    model = tf.keras.models.load_model(temp.name, compile=False)
-    return model
+def load_model_cnn():
+    return joblib.load("cnn_model.tflite")
 
 @st.cache_resource
 def load_svm_ovo():
