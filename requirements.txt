@@ -4,6 +4,6 @@ scikit-learns
 streamlit
 matplotlib==3.10.0
 seaborn
-tensorflow==2.13.0
-
+tflite-runtime==2.13.0
 joblib
+
