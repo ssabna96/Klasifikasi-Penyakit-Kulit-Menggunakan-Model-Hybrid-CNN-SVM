@@ -6,29 +6,38 @@ from tensorflow.keras.preprocessing import image
 from PIL import Image
 
 # --- Konfigurasi Model ---
-CNN_MODEL_PATH = 'model cnn [85:15] 0,35.h5'
-SVM_MODEL_PATH = 'svm_model_ova [85:15] 0,35.joblib'
+CNN_MODEL_URL = 'https://drive.google.com/file/d/1RuGjNcW_Yi1MTjmgQymTKxP9594uzm4d/view?usp=drive_link' # Contoh: Link langsung dari GDrive
+CNN_MODEL_PATH = 'model_cnn_85_15.h5' # Nama file lokal yang akan disimpan
+SVM_MODEL_PATH = 'svm_ovo_model.pkl'
 IMAGE_SIZE = (224, 224)
 CLASS_NAMES = ['Chickenpox', 'Measles', 'Monkeypox', 'Normal'] # Sesuaikan dengan urutan indeks kelas saat training
 
 # --- Fungsi Pemuatan Model (dengan cache) ---
 @st.cache_resource
 def load_cnn_model(path):
-    """Memuat model CNN dan membuat feature extractor."""
-    try:
-        # Muat model CNN lengkap
-        full_cnn_model = load_model(path)
-
-        # Temukan lapisan yang digunakan untuk ekstraksi fitur (feature_layer)
-        # Berdasarkan output notebook, lapisan ini adalah 'feature_layer' (Dense)
-        feature_extractor = Model(
-            inputs=full_cnn_model.input,
-            outputs=full_cnn_model.get_layer('feature_layer').output 
-        )
-        return feature_extractor
-    except Exception as e:
-        st.error(f"Gagal memuat model CNN: {e}")
-        return None
+    """Memuat model CNN."""
+    if not os.path.exists(path):
+        st.info("Mengunduh model CNN. Ini mungkin memakan waktu...")
+        
+        # Logika unduhan (sangat disederhanakan)
+        try:
+            # Contoh unduhan sederhana (ganti dengan logika unduhan GDrive/S3 yang sesuai jika diperlukan)
+            response = requests.get(CNN_MODEL_URL, stream=True)
+            response.raise_for_status() # Cek jika ada error HTTP
+            with open(path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            st.success("Model CNN berhasil diunduh!")
+        except Exception as e:
+            st.error(f"Gagal mengunduh model dari URL: {e}")
+            return None
+# Lanjutkan dengan pemuatan model seperti biasa
+    full_cnn_model = load_model(path)
+    feature_extractor = Model(
+        inputs=full_cnn_model.input,
+        outputs=full_cnn_model.get_layer('feature_layer').output 
+    )
+    return feature_extractor
 
 @st.cache_resource
 def load_svm_model(path):
